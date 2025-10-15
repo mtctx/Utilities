@@ -1,5 +1,5 @@
 /*
- *     Utilities: Crypto.kt
+ *     Utilities: Other.kt
  *     Copyright (C) 2025 mtctx
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -16,18 +16,18 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mtctx.utilities.crypto
+package mtctx.utilities
 
-import mtctx.utilities.padTo
-import org.bouncycastle.util.Arrays
-import java.security.SecureRandom
-
-val SECURE_RANDOM = SecureRandom()
-
-fun constantTimeEquals(first: ByteArray, second: ByteArray): Boolean = first.constantTimeEquals(second)
-fun ByteArray.constantTimeEquals(other: ByteArray): Boolean {
-    val length = maxOf(size, other.size)
-    return Arrays.constantTimeAreEqual(padTo(length), other.padTo(length))
+fun ByteArray.prepend(prefix: ByteArray): ByteArray {
+    val result = ByteArray(prefix.size + this.size)
+    System.arraycopy(prefix, 0, result, 0, prefix.size)
+    System.arraycopy(this, 0, result, prefix.size, this.size)
+    return result
 }
 
-infix fun ByteArray.secureEquals(other: ByteArray): Boolean = constantTimeEquals(other)
+fun ByteArray.padTo(len: Int) = if (size < len) this + ByteArray(len - size) else this
+
+// Implement a custom way to serialize an object to ByteArray
+abstract class CustomToByteArray {
+    abstract fun serialize(): ByteArray
+}

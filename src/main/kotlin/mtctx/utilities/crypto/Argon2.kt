@@ -60,7 +60,7 @@ class Argon2 {
         fun ByteArray.verifyWithArgon2(unhashed: String, salt: ByteArray): Boolean = verify(unhashed, this, salt)
     }
 
-    data class Result(val hash: ByteArray, val salt: ByteArray) {
+    class Result(val hash: ByteArray, val salt: ByteArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
