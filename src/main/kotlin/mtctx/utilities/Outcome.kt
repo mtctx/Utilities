@@ -105,28 +105,34 @@ fun <T> Outcome<T>.toResult(): Result<T> = when (this) {
 
 fun <T> Result<T>.toOutcome(): Outcome<T> = fold(::success, ::failure)
 
-inline fun <T> runCatchingOutcome(block: () -> T): Outcome<T> {
-    return try {
+inline fun <T> runCatchingOutcomeOf(block: () -> T): Outcome<T> =
+    try {
         success(block())
     } catch (e: Throwable) {
         failure(e)
     }
-}
 
-inline fun <T> runCatchingOutcome(block: () -> Outcome<T>): Outcome<T> {
-    return try {
+inline fun <T> runCatchingOutcomeBlock(block: () -> Outcome<T>): Outcome<T> =
+    try {
         block()
     } catch (e: Throwable) {
         failure(e)
     }
-}
 
-inline fun <T> T.runCatchingOutcome(block: () -> T): Outcome<T> =
+inline fun <T> T.runCatchingOutcomeOf(block: () -> T): Outcome<T> =
     try {
         success(block())
     } catch (t: Throwable) {
         failure("Exception in runCatching Outcome", t)
     }
+
+inline fun <T> T.runCatchingOutcomeBlock(block: () -> Outcome<T>): Outcome<T> =
+    try {
+        block()
+    } catch (e: Throwable) {
+        failure(e)
+    }
+
 
 fun success(): Success<Boolean> = Success(true)
 fun <T> success(value: T): Success<T> = Success(value)
