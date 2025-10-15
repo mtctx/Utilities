@@ -24,7 +24,6 @@ import java.security.SecureRandom
 
 val SECURE_RANDOM = SecureRandom()
 
-fun constantTimeEquals(first: ByteArray, second: ByteArray): Boolean = first.constantTimeEquals(second)
 fun ByteArray.constantTimeEquals(other: ByteArray): Boolean {
     val length = maxOf(size, other.size)
     return Arrays.constantTimeAreEqual(padTo(length), other.padTo(length))
