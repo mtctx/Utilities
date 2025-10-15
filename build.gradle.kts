@@ -21,6 +21,7 @@ import com.vanniktech.maven.publish.KotlinJvm
 
 plugins {
     kotlin("jvm") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.0"
     id("com.vanniktech.maven.publish") version "0.34.0"
     id("org.jetbrains.dokka") version "2.1.0-Beta"
     id("org.jetbrains.dokka-javadoc") version "2.1.0-Beta"
@@ -28,13 +29,17 @@ plugins {
 }
 
 group = "dev.mtctx.library"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    api("com.squareup.okio:okio:3.16.2")
+    api("org.bouncycastle:bcpkix-jdk18on:1.82")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.1.0-Beta")
 }
 
