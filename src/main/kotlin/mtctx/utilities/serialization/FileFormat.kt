@@ -1,5 +1,5 @@
 /*
- * Utilities: settings.gradle.kts
+ * Utilities (Utilities.main): FileFormat.kt
  * Copyright (C) 2025 mtctx
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,15 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+package mtctx.utilities.serialization
+
+import kotlinx.serialization.StringFormat
+import kotlinx.serialization.modules.SerializersModuleBuilder
+
+abstract class FileFormat {
+    val defaultForHumans by lazy { forHumans(null) }
+    val defaultForMachines by lazy { forMachines(null) }
+
+    abstract fun forHumans(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): StringFormat
+    abstract fun forMachines(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): StringFormat
 }
-rootProject.name = "Utilities"
