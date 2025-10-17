@@ -17,6 +17,7 @@
 
 package mtctx.utilities.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -24,7 +25,8 @@ import kotlinx.serialization.modules.SerializersModuleBuilder
 import mtctx.utilities.serialization.serializer.UUIDSerializer
 import java.util.*
 
-class JsonFileFormat : FileFormat() {
+@OptIn(ExperimentalSerializationApi::class)
+class JsonFileFormat : FileFormat<Json>() {
     override fun forHumans(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?) = Json {
         encodeDefaults = true
         ignoreUnknownKeys = true

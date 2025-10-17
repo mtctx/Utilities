@@ -30,11 +30,11 @@ val jsonForMachines = jsonFileFormat.defaultForMachines
 @Suppress("UNCHECKED_CAST")
 fun <T : StringFormat> stringFormat(
     forHumans: Boolean = false,
-    fileFormat: FileFormat,
+    fileFormat: FileFormat<T>,
     serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)? = null
 ): T {
     val formatFunction = if (forHumans) fileFormat::forHumans else fileFormat::forMachines
-    return formatFunction(serializersModuleBuilder) as T
+    return formatFunction(serializersModuleBuilder)
 }
 
 fun json(forHumans: Boolean = false, serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)? = null): Json =

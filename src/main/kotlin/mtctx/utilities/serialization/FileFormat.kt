@@ -20,10 +20,10 @@ package mtctx.utilities.serialization
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.modules.SerializersModuleBuilder
 
-abstract class FileFormat {
+abstract class FileFormat<T : StringFormat> {
     val defaultForHumans by lazy { forHumans(null) }
     val defaultForMachines by lazy { forMachines(null) }
 
-    abstract fun forHumans(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): StringFormat
-    abstract fun forMachines(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): StringFormat
+    abstract fun forHumans(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): T
+    abstract fun forMachines(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): T
 }
