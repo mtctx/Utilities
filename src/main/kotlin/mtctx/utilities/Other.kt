@@ -17,6 +17,8 @@
 
 package mtctx.utilities
 
+import kotlinx.serialization.modules.SerializersModuleBuilder
+
 fun ByteArray.prepend(prefix: ByteArray): ByteArray {
     val result = ByteArray(prefix.size + this.size)
     System.arraycopy(prefix, 0, result, 0, prefix.size)
@@ -26,7 +28,9 @@ fun ByteArray.prepend(prefix: ByteArray): ByteArray {
 
 fun ByteArray.padTo(len: Int) = if (size < len) this + ByteArray(len - size) else this
 
-// Implement a custom way to serialize an object to ByteArray
 abstract class CustomToByteArray {
     abstract fun serialize(): ByteArray
 }
+
+fun serializersModuleBuilder(serializersModuleBuilder: SerializersModuleBuilder.() -> Unit): SerializersModuleBuilder.() -> Unit =
+    serializersModuleBuilder

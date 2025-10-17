@@ -20,13 +20,11 @@ package mtctx.utilities.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleBuilder
-import mtctx.utilities.serialization.serializer.UUIDSerializer
-import java.util.*
 
 @OptIn(ExperimentalSerializationApi::class)
-class JsonFileFormat : FileFormat<Json>() {
+class JsonFileFormat(serializersModuleBuilders: MutableSet<SerializersModuleBuilder.() -> Unit> = mutableSetOf()) :
+    FileFormat<Json>(serializersModuleBuilders) {
     override fun forHumans(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?) = Json {
         encodeDefaults = true
         ignoreUnknownKeys = true
@@ -43,10 +41,7 @@ class JsonFileFormat : FileFormat<Json>() {
         allowTrailingComma = true
         allowComments = true
         classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
-        serializersModule = SerializersModule {
-            contextual(UUID::class, UUIDSerializer())
-            serializersModuleBuilder?.invoke(this)
-        }
+        serializersModule = serializersModule(serializersModuleBuilder)
     }
 
     override fun forMachines(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?) = Json {
@@ -64,9 +59,6 @@ class JsonFileFormat : FileFormat<Json>() {
         allowTrailingComma = false
         allowComments = false
         classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
-        serializersModule = SerializersModule {
-            contextual(UUID::class, UUIDSerializer())
-            serializersModuleBuilder?.invoke(this)
-        }
+        serializersModule = serializersModule(serializersModuleBuilder)
     }
 }

@@ -23,11 +23,10 @@ import kotlinx.serialization.StringFormat
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModuleBuilder
 
-internal val jsonFileFormat = JsonFileFormat()
+val jsonFileFormat = JsonFileFormat()
 val jsonForHumans = jsonFileFormat.defaultForHumans
 val jsonForMachines = jsonFileFormat.defaultForMachines
 
-@Suppress("UNCHECKED_CAST")
 fun <T : StringFormat> stringFormat(
     forHumans: Boolean = false,
     fileFormat: FileFormat<T>,

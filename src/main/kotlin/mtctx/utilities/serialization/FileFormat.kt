@@ -18,9 +18,23 @@
 package mtctx.utilities.serialization
 
 import kotlinx.serialization.StringFormat
+import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleBuilder
+import mtctx.utilities.serialization.serializer.UUIDSerializer
+import mtctx.utilities.serializersModuleBuilder
+import java.util.*
 
-abstract class FileFormat<T : StringFormat> {
+abstract class FileFormat<T : StringFormat>(protected val serializersModuleBuilders: MutableSet<SerializersModuleBuilder.() -> Unit>) {
+    init {
+        this.serializersModuleBuilders.add(serializersModuleBuilder { contextual(UUID::class, UUIDSerializer) })
+    }
+
+    protected fun serializersModule(serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)?): SerializersModule =
+        SerializersModule {
+            serializersModuleBuilder?.let { serializersModuleBuilders.add(it) }
+            serializersModuleBuilders.forEach { it() }
+        }
+
     val defaultForHumans by lazy { forHumans(null) }
     val defaultForMachines by lazy { forMachines(null) }
 
