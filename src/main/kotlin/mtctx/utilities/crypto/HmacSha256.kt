@@ -15,10 +15,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-package reprivatize.reauth.crypto
+package mtctx.utilities.crypto
 
-import mtctx.utilities.crypto.SECURE_RANDOM
-import mtctx.utilities.crypto.secureEquals
 import org.bouncycastle.crypto.Mac
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.macs.HMac
