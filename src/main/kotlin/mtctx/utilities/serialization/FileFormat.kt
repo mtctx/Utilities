@@ -35,7 +35,7 @@ import java.util.*
  * The [defaultForHumans] and [defaultForMachines] properties offer default instances without additional
  * serializers, while [serializersModule] builds a [SerializersModule] from the provided builders.
  *
- * @param T The specific [StringFormat] type produced by this format (e.g., [Json]).
+ * @param T The specific [StringFormat] type produced by this format (e.g., [kotlinx.serialization.json.Json]).
  * @param serializersModuleBuilders A mutable set of builders to configure custom serializers.
  * @see JsonFileFormat for a concrete implementation using JSON
  * @see UUIDSerializer for the default UUID serializer

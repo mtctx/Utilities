@@ -14,6 +14,7 @@
  * SPDX-FileCopyrightText: 2025 mtctx
  * SPDX-License-Identifier: GPL-3.0-only
  */
+@file:Suppress("unused")
 
 package mtctx.utilities
 
@@ -86,6 +87,36 @@ sealed interface Outcome<out T> {
         fun toStringWithStackTrace(): String =
             "Failure(message=$message" + if (throwable != null) ", stacktrace=${throwable.stackTraceToString()})" else ")"
     }
+
+    /**
+     * Returns the value of a [Success] or `null` if the outcome is a [Failure].
+     *
+     * @return The value if successful, or `null` if failed.
+     */
+    fun getOrNull(): T? = when (this) {
+        is Success -> value
+        is Failure -> null
+    }
+
+    /**
+     * Returns the [Throwable] of a [Failure] or `null` if the outcome is a [Success].
+     *
+     * @return The throwable if failed, or `null` if successful.
+     */
+    fun exceptionOrNull(): Throwable? = when (this) {
+        is Success -> null
+        is Failure -> throwable
+    }
+
+    /**
+     * Converts this [Outcome] to a [Result].
+     *
+     * @return A [Result] containing the value if successful, or an exception if failed.
+     */
+    fun toResult(): Result<T> = when (this) {
+        is Success -> Result.success(value)
+        is Failure -> Result.failure(throwable ?: Exception(message))
+    }
 }
 
 /**
@@ -94,7 +125,7 @@ sealed interface Outcome<out T> {
  * @param transform The function to transform the value of a [Success].
  * @return A new [Outcome] with the transformed value if successful, or the original [Failure].
  */
-inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> = when (this) {
+suspend inline fun <T, R> Outcome<T>.map(transform: suspend (T) -> R): Outcome<R> = when (this) {
     is Success -> Success(transform(value))
     is Failure -> this
 }
@@ -105,7 +136,7 @@ inline fun <T, R> Outcome<T>.map(transform: (T) -> R): Outcome<R> = when (this) 
  * @param transform The function to transform the value of a [Success] into another [Outcome].
  * @return The [Outcome] produced by [transform] if successful, or the original [Failure].
  */
-inline fun <T, R> Outcome<T>.flatMap(transform: (T) -> Outcome<R>): Outcome<R> = when (this) {
+suspend inline fun <T, R> Outcome<T>.flatMap(transform: suspend (T) -> Outcome<R>): Outcome<R> = when (this) {
     is Success -> transform(value)
     is Failure -> this
 }
@@ -116,7 +147,7 @@ inline fun <T, R> Outcome<T>.flatMap(transform: (T) -> Outcome<R>): Outcome<R> =
  * @param transform The function to transform the value of a [Success].
  * @return A new [Outcome] with the transformed value if successful, or a [Failure] if an exception occurs.
  */
-inline fun <T, R> Outcome<T>.mapCatching(transform: (T) -> R): Outcome<R> = when (this) {
+suspend inline fun <T, R> Outcome<T>.mapCatching(transform: suspend (T) -> R): Outcome<R> = when (this) {
     is Success ->
         try {
             Success(transform(value))
@@ -133,7 +164,7 @@ inline fun <T, R> Outcome<T>.mapCatching(transform: (T) -> R): Outcome<R> = when
  * @param transform The function to transform a [Failure].
  * @return The transformed [Failure] if the outcome is a failure, or the original [Success].
  */
-inline fun <T> Outcome<T>.mapFailure(transform: (Failure) -> Failure): Outcome<T> = when (this) {
+suspend inline fun <T> Outcome<T>.mapFailure(transform: suspend (Failure) -> Failure): Outcome<T> = when (this) {
     is Success -> this
     is Failure -> transform(this)
 }
@@ -145,7 +176,10 @@ inline fun <T> Outcome<T>.mapFailure(transform: (Failure) -> Failure): Outcome<T
  * @param onFailure The function to apply to the message and throwable of a [Failure].
  * @return The result of applying the appropriate function.
  */
-inline fun <T, R> Outcome<T>.fold(onSuccess: (T) -> R, onFailure: (String, Throwable?) -> R): R = when (this) {
+suspend inline fun <T, R> Outcome<T>.fold(
+    onSuccess: suspend (T) -> R,
+    onFailure: suspend (String, Throwable?) -> R
+): R = when (this) {
     is Success -> onSuccess(value)
     is Failure -> onFailure(message, throwable)
 }
@@ -156,7 +190,7 @@ inline fun <T, R> Outcome<T>.fold(onSuccess: (T) -> R, onFailure: (String, Throw
  * @param recoverBlock The function to produce a value from a [Failure].
  * @return The original [Success], or a new [Success] with the recovered value.
  */
-inline fun <T> Outcome<T>.recover(recoverBlock: (Failure) -> T): Outcome<T> = when (this) {
+suspend inline fun <T> Outcome<T>.recover(recoverBlock: suspend (Failure) -> T): Outcome<T> = when (this) {
     is Success -> this
     is Failure -> success(recoverBlock(this))
 }
@@ -167,7 +201,7 @@ inline fun <T> Outcome<T>.recover(recoverBlock: (Failure) -> T): Outcome<T> = wh
  * @param recoverBlock The function to produce a value from a [Failure].
  * @return The original [Success], or a new [Success] with the recovered value, or a [Failure] if an exception occurs.
  */
-inline fun <T> Outcome<T>.recoverCatching(recoverBlock: (Failure) -> T): Outcome<T> = when (this) {
+suspend inline fun <T> Outcome<T>.recoverCatching(recoverBlock: suspend (Failure) -> T): Outcome<T> = when (this) {
     is Success -> this
     is Failure ->
         try {
@@ -175,36 +209,6 @@ inline fun <T> Outcome<T>.recoverCatching(recoverBlock: (Failure) -> T): Outcome
         } catch (t: Throwable) {
             failure("Exception in recoverCatching", t)
         }
-}
-
-/**
- * Returns the value of a [Success] or `null` if the outcome is a [Failure].
- *
- * @return The value if successful, or `null` if failed.
- */
-fun <T> Outcome<T>.getOrNull(): T? = when (this) {
-    is Success -> value
-    is Failure -> null
-}
-
-/**
- * Returns the [Throwable] of a [Failure] or `null` if the outcome is a [Success].
- *
- * @return The throwable if failed, or `null` if successful.
- */
-fun <T> Outcome<T>.exceptionOrNull(): Throwable? = when (this) {
-    is Success -> null
-    is Failure -> throwable
-}
-
-/**
- * Converts this [Outcome] to a [Result].
- *
- * @return A [Result] containing the value if successful, or an exception if failed.
- */
-fun <T> Outcome<T>.toResult(): Result<T> = when (this) {
-    is Success -> Result.success(value)
-    is Failure -> Result.failure(throwable ?: Exception(message))
 }
 
 /**
@@ -220,7 +224,7 @@ fun <T> Result<T>.toOutcome(): Outcome<T> = fold(::success, ::failure)
  * @param block The function to execute.
  * @return A [Success] with the result of [block], or a [Failure] if an exception occurs.
  */
-inline fun <T> runCatchingOutcomeOf(block: () -> T): Outcome<T> =
+suspend inline fun <T> runCatchingOutcomeOf(block: suspend () -> T): Outcome<T> =
     try {
         success(block())
     } catch (e: Throwable) {
@@ -233,7 +237,7 @@ inline fun <T> runCatchingOutcomeOf(block: () -> T): Outcome<T> =
  * @param block The function that returns an [Outcome].
  * @return The [Outcome] from [block], or a [Failure] if an exception occurs.
  */
-inline fun <T> runCatchingOutcomeBlock(block: () -> Outcome<T>): Outcome<T> =
+suspend inline fun <T> runCatchingOutcomeBlock(block: suspend () -> Outcome<T>): Outcome<T> =
     try {
         block()
     } catch (e: Throwable) {
@@ -246,7 +250,7 @@ inline fun <T> runCatchingOutcomeBlock(block: () -> Outcome<T>): Outcome<T> =
  * @param block The function to execute.
  * @return A [Success] with the result of [block], or a [Failure] if an exception occurs.
  */
-inline fun <T> T.runCatchingOutcomeOf(block: () -> T): Outcome<T> =
+suspend inline fun <T> T.runCatchingOutcomeOf(block: suspend () -> T): Outcome<T> =
     try {
         success(block())
     } catch (t: Throwable) {
@@ -259,7 +263,7 @@ inline fun <T> T.runCatchingOutcomeOf(block: () -> T): Outcome<T> =
  * @param block The function that returns an [Outcome].
  * @return The [Outcome] from [block], or a [Failure] if an exception occurs.
  */
-inline fun <T> T.runCatchingOutcomeBlock(block: () -> Outcome<T>): Outcome<T> =
+suspend inline fun <T> T.runCatchingOutcomeBlock(block: suspend () -> Outcome<T>): Outcome<T> =
     try {
         block()
     } catch (e: Throwable) {
@@ -287,7 +291,7 @@ fun <T> success(value: T): Success<T> = Success(value)
  * @param block The function to execute.
  * @return A [Success] instance containing the result of [block].
  */
-inline fun <T> success(block: () -> T): Success<T> {
+suspend inline fun <T> success(block: suspend () -> T): Success<T> {
     return Success(block())
 }
 

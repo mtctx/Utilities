@@ -14,6 +14,7 @@
  * SPDX-FileCopyrightText: 2025 mtctx
  * SPDX-License-Identifier: GPL-3.0-only
  */
+@file:Suppress("unused")
 @file:OptIn(ExperimentalSerializationApi::class)
 
 package mtctx.utilities.serialization

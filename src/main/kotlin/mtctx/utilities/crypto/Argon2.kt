@@ -17,11 +17,17 @@
 
 package mtctx.utilities.crypto
 
+import mtctx.utilities.Outcome
 import mtctx.utilities.crypto.Argon2.Companion.SALT_SIZE
 import mtctx.utilities.crypto.Argon2.Companion.generateSalt
 import mtctx.utilities.datasizes.mib
+import mtctx.utilities.failure
+import mtctx.utilities.mapCatching
+import mtctx.utilities.success
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
+import org.bouncycastle.util.Arrays
+import kotlin.io.encoding.Base64
 
 /**
  * Provides utilities for password hashing and verification using the Argon2 algorithm (ARGON2id variant).
@@ -40,6 +46,9 @@ import org.bouncycastle.crypto.params.Argon2Parameters
  */
 class Argon2 {
     companion object {
+        private val HASH_PATTERN =
+            "\$argon2id\$v=(\\d+)\$m=(\\d+),t=(\\d+),p=(\\d+)$([a-zA-Z0-9+/=]+)$([a-zA-Z0-9+/=]+)$".toRegex()
+
         /** Number of iterations for the Argon2 algorithm (default: 4). */
         private const val ITERATIONS = 4
 
@@ -82,10 +91,14 @@ class Argon2 {
          * @return A [Result] containing the hash and the salt used.
          */
         @JvmStatic
-        fun hash(input: String, salt: ByteArray = generateSalt()): Result {
-            argon2Builder.withSalt(salt)
+        fun hash(
+            input: String,
+            salt: ByteArray = generateSalt(),
+            builder: Argon2Parameters.Builder = argon2Builder
+        ): Result {
+            builder.withSalt(salt)
             val generator = Argon2BytesGenerator()
-            generator.init(argon2Builder.build())
+            generator.init(builder.build())
             val result = ByteArray(HASH_LENGTH)
             generator.generateBytes(input.toByteArray(), result)
             return Result(result, salt)
@@ -100,8 +113,37 @@ class Argon2 {
          * @return `true` if the input matches the hash, `false` otherwise.
          */
         @JvmStatic
-        fun verify(input: String, hash: ByteArray, salt: ByteArray): Boolean =
-            hash(input, salt).hash.contentEquals(hash)
+        suspend fun verify(input: String, hash: ByteArray): Outcome<Boolean> =
+            parseHashString(hash).mapCatching { parsed ->
+                val builder = Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+                    .withIterations(parsed.iterations)
+                    .withMemoryAsKB(parsed.memory)
+                    .withSalt(parsed.salt)
+                    .withParallelism(parsed.parallelism)
+
+                val generator = Argon2BytesGenerator()
+                generator.init(builder.build())
+                val generatedHash = ByteArray(parsed.hash.size)
+                generator.generateBytes(input.toByteArray(), generatedHash)
+
+                Arrays.constantTimeAreEqual(parsed.hash, generatedHash)
+            }
+
+        private fun parseHashString(encodedHash: ByteArray): Outcome<ParsedHash> {
+            val matchResult = HASH_PATTERN.find(encodedHash.decodeToString())
+                ?: return failure("Invalid Argon2 hash format: $encodedHash")
+
+            val (versionStr, memoryStr, iterationsStr, parallelismStr, saltStr, hashStr) = matchResult.destructured
+
+            val version = versionStr.toInt()
+            val memory = memoryStr.toInt()
+            val iterations = iterationsStr.toInt()
+            val parallelism = parallelismStr.toInt()
+            val salt = Base64.decode(saltStr)
+            val hash = Base64.decode(hashStr)
+
+            return success(ParsedHash(version, memory, iterations, parallelism, salt, hash))
+        }
 
         /**
          * Hashes this string using the Argon2 algorithm with the specified or generated salt.
@@ -118,7 +160,7 @@ class Argon2 {
          * @param salt The salt used to generate the hash.
          * @return `true` if this string matches the hash, `false` otherwise.
          */
-        fun String.verifyWithArgon2(hash: ByteArray, salt: ByteArray): Boolean = verify(this, hash, salt)
+        suspend fun String.verifyWithArgon2(hash: ByteArray): Outcome<Boolean> = verify(this, hash)
 
         /**
          * Verifies an input string against this hash and the provided salt using the Argon2 algorithm.
@@ -127,7 +169,7 @@ class Argon2 {
          * @param salt The salt used to generate this hash.
          * @return `true` if the input matches this hash, `false` otherwise.
          */
-        fun ByteArray.verifyWithArgon2(unhashed: String, salt: ByteArray): Boolean = verify(unhashed, this, salt)
+        suspend fun ByteArray.verifyWithArgon2(unhashed: String): Outcome<Boolean> = verify(unhashed, this)
     }
 
     /**
@@ -164,6 +206,42 @@ class Argon2 {
         override fun hashCode(): Int {
             var result = hash.contentHashCode()
             result = 31 * result + salt.contentHashCode()
+            return result
+        }
+    }
+
+
+    private data class ParsedHash(
+        val version: Int,
+        val memory: Int,
+        val iterations: Int,
+        val parallelism: Int,
+        val salt: ByteArray,
+        val hash: ByteArray
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ParsedHash
+
+            if (version != other.version) return false
+            if (memory != other.memory) return false
+            if (iterations != other.iterations) return false
+            if (parallelism != other.parallelism) return false
+            if (!salt.contentEquals(other.salt)) return false
+            if (!hash.contentEquals(other.hash)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = version
+            result = 31 * result + memory
+            result = 31 * result + iterations
+            result = 31 * result + parallelism
+            result = 31 * result + salt.contentHashCode()
+            result = 31 * result + hash.contentHashCode()
             return result
         }
     }

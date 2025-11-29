@@ -14,6 +14,7 @@
  * SPDX-FileCopyrightText: 2025 mtctx
  * SPDX-License-Identifier: GPL-3.0-only
  */
+@file:Suppress("unused")
 
 package mtctx.utilities
 
@@ -51,13 +52,14 @@ fun ByteArray.padTo(len: Int) = if (size < len) this + ByteArray(len - size) els
  * Subclasses must implement the [serialize] method to define how their data is converted
  * to a [ByteArray] representation.
  */
-abstract class CustomToByteArray {
+abstract class CustomByteArraySerializable {
     /**
      * Serializes this object to a [ByteArray].
      *
      * @return A [ByteArray] representing the serialized form of this object.
      */
     abstract fun serialize(): ByteArray
+    abstract fun deserialize(byteArray: ByteArray): CustomByteArraySerializable
 }
 
 /**

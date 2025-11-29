@@ -14,6 +14,7 @@
  * SPDX-FileCopyrightText: 2025 mtctx
  * SPDX-License-Identifier: GPL-3.0-only
  */
+@file:Suppress("unused")
 
 package mtctx.utilities
 
@@ -67,13 +68,13 @@ fun <T> String.deserialize(deserializer: KSerializer<T>, format: StringFormat = 
  * @param format The [StringFormat] to use for encoding (default: [jsonForMachines]).
  * @return This object, for method chaining.
  */
-fun <T> T.serializeAndWrite(
+suspend fun <T> T.serializeAndWrite(
     serializer: KSerializer<T>,
     path: Path,
     append: Boolean = true,
     atomicMove: Boolean = false,
     format: StringFormat = jsonForMachines
-): T {
+): Outcome<T> = runCatchingOutcomeOf<T> {
     path.parent?.let { fileSystem.createDirectories(it) }
     val writablePath = if (atomicMove) path.sibling("${path.name}.temp") else path
 
@@ -84,7 +85,7 @@ fun <T> T.serializeAndWrite(
     if (atomicMove && writablePath != path)
         fileSystem.atomicMove(writablePath, path)
 
-    return this
+    return@runCatchingOutcomeOf this
 }
 
 /**
@@ -96,8 +97,12 @@ fun <T> T.serializeAndWrite(
  * @throws okio.IOException if reading the file fails.
  * @throws kotlinx.serialization.SerializationException if deserialization fails.
  */
-fun <T> Path.readAndDeserialize(deserializer: KSerializer<T>, format: StringFormat = jsonForMachines): T =
+suspend fun <T> Path.readAndDeserialize(
+    deserializer: KSerializer<T>,
+    format: StringFormat = jsonForMachines
+): Outcome<T> = runCatchingOutcomeOf<T> {
     fileSystem.read(this) { readUtf8() }.deserialize(deserializer, format)
+}
 
 /**
  * Reads the content of the specified [File] and deserializes it to an object of type [T].
@@ -108,8 +113,12 @@ fun <T> Path.readAndDeserialize(deserializer: KSerializer<T>, format: StringForm
  * @throws java.io.IOException if reading the file fails.
  * @throws kotlinx.serialization.SerializationException if deserialization fails.
  */
-fun <T> File.readAndDeserialize(deserializer: KSerializer<T>, format: StringFormat = jsonForMachines): T =
+suspend fun <T> File.readAndDeserialize(
+    deserializer: KSerializer<T>,
+    format: StringFormat = jsonForMachines
+): Outcome<T> = runCatchingOutcomeOf<T> {
     inputStream().bufferedReader().readText().deserialize(deserializer, format)
+}
 
 /**
  * Creates a [Path] for a sibling file or directory with the specified [name].
