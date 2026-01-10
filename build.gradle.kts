@@ -1,109 +1,35 @@
-/*
- * Utilities: build.gradle.kts
- * Copyright (C) 2025 mtctx
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the **GNU General Public License** as published
- * by the Free Software Foundation, either **version 3** of the License, or
- * (at your option) any later version.
- *
- * This program is distributed WITHOUT ANY WARRANTY; see the
- * GNU General Public License for more details, which you should have
- * received with this program.
- *
- * SPDX-FileCopyrightText: 2025 mtctx
- * SPDX-License-Identifier: GPL-3.0-only
- */
-
-import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.KotlinJvm
-
 plugins {
-    kotlin("jvm") version "2.2.0"
-    kotlin("plugin.serialization") version "2.2.0"
-    id("com.vanniktech.maven.publish") version "0.34.0"
-    id("org.jetbrains.dokka") version "2.1.0-Beta"
-    id("org.jetbrains.dokka-javadoc") version "2.1.0-Beta"
-    signing
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.dokka.javadoc)
 }
-
-group = "dev.mtctx.library"
-version = "1.7.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api("com.squareup.okio:okio:3.16.2")
-    api("org.bouncycastle:bcpkix-jdk18on:1.82")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.1.0-Beta")
-}
-
-mavenPublishing {
-    coordinates(group.toString(), "utilities", version.toString())
-
-    pom {
-        name.set("mtctx utilities")
-        description.set("Things I often use in my software, e.g. Outcome")
-        inceptionYear.set("2025")
-        url.set("https://github.com/mtctx/Utils")
-
-        licenses {
-            license {
-                name.set("GNU General Public License v3.0")
-                url.set("https://www.gnu.org/licenses/gpl-3.0.html")
-                distribution.set("repo")
-            }
-        }
-
-        scm {
-            url.set("https://github.com/mtctx/Utils")
-            connection.set("scm:git:git@github.com:mtctx/Utils.git")
-            developerConnection.set("scm:git:ssh://git@github.com:mtctx/Utils.git")
-        }
-
-        developers {
-            developer {
-                id.set("mtctx")
-                name.set("mtctx")
-                email.set("me@mtctx.dev")
-            }
-        }
+    subprojects.forEach { subproject ->
+        dokka(subproject)
     }
-
-    configure(KotlinJvm(JavadocJar.Dokka("dokkaGenerateJavadoc"), sourcesJar = true))
-
-    signAllPublications()
-    publishToMavenCentral(automaticRelease = true)
-}
-
-signing {
-    useGpgCmd()
 }
 
 dokka {
+    moduleName.set("mtctx's Utilities")
+
     dokkaPublications.html {
-        outputDirectory.set(layout.buildDirectory.dir("dokka/html").get().asFile)
+        outputDirectory.set(layout.projectDirectory.dir("dokka/html"))
     }
     dokkaPublications.javadoc {
-        outputDirectory.set(layout.buildDirectory.dir("dokka/javadoc").get().asFile)
-    }
-
-    dokkaSourceSets.configureEach {
-        jdkVersion.set(21)
-        sourceLink {
-            localDirectory.set(file("${project.name}/src/main/kotlin"))
-            remoteUrl.set(uri("https://github.com/mtctx/Squishy/tree/main/${project.name}/src/main/kotlin/"))
-            remoteLineSuffix.set("#L")
-        }
+        outputDirectory.set(layout.projectDirectory.dir("dokka/javadoc"))
     }
 }
 
-val javaTarget = 21
-kotlin {
-    jvmToolchain(javaTarget)
+tasks {
+    clean {
+        doLast {
+            delete(layout.projectDirectory.dir("dokka"))
+        }
+    }
 }
