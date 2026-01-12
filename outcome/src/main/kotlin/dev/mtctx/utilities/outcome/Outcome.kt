@@ -1,9 +1,9 @@
 @file:Suppress("unused")
 
-package dev.mtctx.utilities
+package dev.mtctx.utilities.outcome
 
-import dev.mtctx.utilities.Outcome.Failure
-import dev.mtctx.utilities.Outcome.Success
+import dev.mtctx.utilities.outcome.Outcome.Failure
+import dev.mtctx.utilities.outcome.Outcome.Success
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 

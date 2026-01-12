@@ -1,11 +1,12 @@
 @file:Suppress("unused")
 
-package dev.mtctx.utilities
+package dev.mtctx.utilities.io
 
-import dev.mtctx.utilities.runCatchingOutcomeOf
+import dev.mtctx.utilities.outcome.Outcome
+import dev.mtctx.utilities.outcome.runCatchingOutcomeOf
+import dev.mtctx.utilities.serialization.jsonForMachines
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.StringFormat
-import dev.mtctx.utilities.serialization.jsonForMachines
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -116,3 +117,7 @@ suspend fun <T : Any> File.readAndDeserialize(
  */
 fun Path.sibling(name: String): Path =
     parent?.div(name) ?: name.toPath()
+
+fun Path.absolute(): Path = fileSystem.canonicalize(this)
+fun Path.absolutePathString(): String = absolute().toString()
+fun Path.temp(tempPrefix: String = ".tmp") = parent?.resolve("$name.tmp") ?: "$name.tmp".toPath()
