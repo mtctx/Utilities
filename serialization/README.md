@@ -10,7 +10,7 @@ serializers across your project, ensuring standard serialization behavior.
 <summary>Gradle (Kotlin)</summary>
 
 ```kotlin
-implementation("dev.mtctx.library:utilities-serialization:2.0.0")
+implementation("dev.mtctx.library:utilities-serialization:2.1.0")
 ```
 
 </details>
@@ -19,7 +19,7 @@ implementation("dev.mtctx.library:utilities-serialization:2.0.0")
 <summary>Gradle (Groovy)</summary>
 
 ```groovy
-implementation 'dev.mtctx.library:utilities-serialization:2.0.0'
+implementation 'dev.mtctx.library:utilities-serialization:2.1.0'
 ```
 
 </details>
@@ -32,7 +32,7 @@ implementation 'dev.mtctx.library:utilities-serialization:2.0.0'
 <dependency>
     <groupId>dev.mtctx.library</groupId>
     <artifactId>utilities-serialization</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ implementation 'dev.mtctx.library:utilities-serialization:2.0.0'
 
 ```xml
 
-<dependency org="dev.mtctx.library" name="utilities-serialization" rev="2.0.0"/>
+<dependency org="dev.mtctx.library" name="utilities-serialization" rev="2.1.0"/>
 ```
 
 </details>
@@ -52,7 +52,7 @@ implementation 'dev.mtctx.library:utilities-serialization:2.0.0'
 <summary>sbt</summary>
 
 ```scala
-libraryDependencies += "dev.mtctx.library" % "utilities-serialization" % "2.0.0"
+libraryDependencies += "dev.mtctx.library" % "utilities-serialization" % "2.1.0"
 ```
 
 </details>
@@ -61,7 +61,7 @@ libraryDependencies += "dev.mtctx.library" % "utilities-serialization" % "2.0.0"
 <summary>Leiningen</summary>
 
 ```clojure
-[dev.mtctx.library/utilities-serialization "2.0.0"]
+[dev.mtctx.library/utilities-serialization "2.1.0"]
 ```
 
 </details>
