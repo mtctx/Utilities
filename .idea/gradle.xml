@@ -27,6 +27,7 @@
             <option value="$PROJECT_DIR$/gradle/plugins" />
             <option value="$PROJECT_DIR$/ignore" />
             <option value="$PROJECT_DIR$/io" />
+            <option value="$PROJECT_DIR$/ktor-client" />
             <option value="$PROJECT_DIR$/outcome" />
             <option value="$PROJECT_DIR$/serialization" />
           </set>

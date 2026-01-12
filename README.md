@@ -5,16 +5,17 @@ sizes, functional effects, robust error handling, and more.
 
 ## Modules
 
-| Module                                     |                                Description                                 | Version |                        Dependencies                         |
-|:-------------------------------------------|:--------------------------------------------------------------------------:|---------|:-----------------------------------------------------------:|
-| [`bytearray`](bytearray/README.md)         |  Utility functions for simplified `ByteArray` operations (hex, padding).   | 2.0.0   |                            None                             |
-| [`crypto`](crypto/README.md)               |  High-level cryptographic utilities (Argon2, HMAC, secure data handling).  | 2.0.0   |     `bytearray`, `datasizes`, `outcome`, `bouncycastle`     |
-| [`datasizes`](datasizes/README.md)         |    Type-safe data size constants and conversions (Binary and Decimal).     | 2.0.0   |                            None                             |
-| [`effect`](effect/README.md)               |  Functional side-effect management (`Effect`, `IO`, coroutines support).   | 2.0.0   |               `outcome`, `kotlinx-coroutines`               |
-| [`ignore`](ignore/README.md)               |    Annotation to mark elements to be ignored by processors or readers.     | 2.0.0   |                            None                             |
-| [`io`](io/README.md)                       |          Efficient IO and file system utilities powered by Okio.           | 2.0.0   | `serialization`, `outcome`, `okio`, `kotlinx-serialization` |
+| Module                                     | Description                                                                | Version |                        Dependencies                         |
+|:-------------------------------------------|:---------------------------------------------------------------------------|---------|:-----------------------------------------------------------:|
+| [`bytearray`](bytearray/README.md)         | Utility functions for simplified `ByteArray` operations (hex, padding).    | 2.0.0   |                            None                             |
+| [`crypto`](crypto/README.md)               | High-level cryptographic utilities (Argon2, HMAC, secure data handling).   | 2.0.0   |     `bytearray`, `datasizes`, `outcome`, `bouncycastle`     |
+| [`datasizes`](datasizes/README.md)         | Type-safe data size constants and conversions (Binary and Decimal).        | 2.0.0   |                            None                             |
+| [`effect`](effect/README.md)               | Functional side-effect management (`Effect`, `IO`, coroutines support).    | 2.0.0   |               `outcome`, `kotlinx-coroutines`               |
+| [`ignore`](ignore/README.md)               | Annotation to mark elements to be ignored by processors or readers.        | 2.0.0   |                            None                             |
+| [`io`](io/README.md)                       | Efficient IO and file system utilities powered by Okio.                    | 2.0.0   | `serialization`, `outcome`, `okio`, `kotlinx-serialization` |
 | [`outcome`](outcome/README.md)             | Type-safe `Success`/`Failure` result handling for robust error management. | 2.1.0   |                            None                             |
-| [`serialization`](serialization/README.md) |          Kotlin Serialization extensions and common serializers.           | 2.1.0   |    `outcome`, `kotlinx-serialization`, `kotlin-reflect`     |
+| [`serialization`](serialization/README.md) | Kotlin Serialization extensions and common serializers.                    | 2.1.0   |    `outcome`, `kotlinx-serialization`, `kotlin-reflect`     |
+| [`ktor-client`](ktor/README.md             | Ktor helper                                                                | 1.0.0   |                            ktor                             |
 
 ## Installation
 
