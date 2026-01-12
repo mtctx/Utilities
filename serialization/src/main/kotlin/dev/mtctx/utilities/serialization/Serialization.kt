@@ -5,7 +5,6 @@ package dev.mtctx.utilities.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.StringFormat
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModuleBuilder
 
 /**
@@ -41,18 +40,6 @@ fun <T : StringFormat> stringFormat(
     val formatFunction = if (forHumans) fileFormat::forHumans else fileFormat::forMachines
     return formatFunction(serializersModuleBuilder)
 }
-
-/**
- * Creates a [kotlinx.serialization.json.Json] instance based on the [jsonFileFormat].
- *
- * @param forHumans If `true`, configures the JSON format for human-readable output; otherwise, for machine-readable output.
- * @param serializersModuleBuilder An optional builder to add custom serializers.
- * @return A [kotlinx.serialization.json.Json] instance configured according to the specified parameters.
- * @see JsonFileFormat
- * @see stringFormat
- */
-fun json(forHumans: Boolean = false, serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)? = null): Json =
-    stringFormat(forHumans, jsonFileFormat, serializersModuleBuilder)
 
 
 /**

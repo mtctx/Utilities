@@ -3,6 +3,7 @@ package dev.mtctx.utilities.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonBuilder
 import kotlinx.serialization.modules.SerializersModuleBuilder
 
 /**
@@ -21,6 +22,7 @@ import kotlinx.serialization.modules.SerializersModuleBuilder
 @OptIn(ExperimentalSerializationApi::class)
 class JsonFileFormat(serializersModuleBuilders: MutableSet<SerializersModuleBuilder.() -> Unit> = mutableSetOf()) :
     FileFormat<Json>(serializersModuleBuilders) {
+
     /**
      * Creates a [kotlinx.serialization.json.Json] instance configured for human-readable output.
      *
@@ -78,3 +80,23 @@ class JsonFileFormat(serializersModuleBuilders: MutableSet<SerializersModuleBuil
         serializersModule = serializersModule(serializersModuleBuilder)
     }
 }
+
+/**
+ * Creates a [kotlinx.serialization.json.Json] instance based on the [jsonFileFormat].
+ *
+ * @param forHumans If `true`, configures the JSON format for human-readable output; otherwise, for machine-readable output.
+ * @param serializersModuleBuilder An optional builder to add custom serializers.
+ * @return A [kotlinx.serialization.json.Json] instance configured according to the specified parameters.
+ * @see JsonFileFormat
+ * @see stringFormat
+ */
+fun json(forHumans: Boolean = false, serializersModuleBuilder: (SerializersModuleBuilder.() -> Unit)? = null): Json =
+    stringFormat(forHumans, jsonFileFormat, serializersModuleBuilder)
+
+/**
+ * Creates a new [kotlinx.serialization.json.Json] instance from the current one, based on the new modification
+ *
+ * @param builder Change settings from the current instance in the DSL
+ * @return A [kotlinx.serialization.json.Json] instance configured according to the old and new settings.
+ */
+fun Json.modify(builder: JsonBuilder.() -> Unit) = Json(this, builder)
